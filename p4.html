@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Car Racing Game</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        canvas {
+            background: #444;
+            display: block;
+            margin: 20px auto;
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Car Racing Game 🚗💨</h1>
+    <p>Use Left ⬅ and Right ➡ arrow keys to move the car. Avoid obstacles!</p>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let car = { x: 175, y: 500, width: 50, height: 80 };
+        let obstacles = [];
+        let gameSpeed = 3;
+        let score = 0;
+        let gameOver = false;
+
+        function drawCar() {
+            ctx.fillStyle = "red";
+            ctx.fillRect(car.x, car.y, car.width, car.height);
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = "blue";
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+                obstacle.y += gameSpeed;
+            });
+
+            obstacles = obstacles.filter(obstacle => obstacle.y < canvas.height);
+        }
+
+        function generateObstacle() {
+            let obstacleX = Math.random() * (canvas.width - 50);
+            obstacles.push({ x: obstacleX, y: -50, width: 50, height: 80 });
+        }
+
+        function detectCollision() {
+            for (let obstacle of obstacles) {
+                if (
+                    car.x < obstacle.x + obstacle.width &&
+                    car.x + car.width > obstacle.x &&
+                    car.y < obstacle.y + obstacle.height &&
+                    car.y + car.height > obstacle.y
+                ) {
+                    gameOver = true;
+                    alert("Game Over! Your score: " + score);
+                    document.location.reload();
+                }
+            }
+        }
+
+        function updateGame() {
+            if (gameOver) return;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCar();
+            drawObstacles();
+            detectCollision();
+            score++;
+            requestAnimationFrame(updateGame);
+        }
+
+        document.addEventListener("keydown", function(event) {
+            if (event.key === "ArrowLeft" && car.x > 0) {
+                car.x -= 20;
+            } else if (event.key === "ArrowRight" && car.x < canvas.width - car.width) {
+                car.x += 20;
+            }
+        });
+
+        setInterval(generateObstacle, 1500);
+        updateGame();
+    </script>
+
+</body>
+</html>
